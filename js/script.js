@@ -1,7 +1,6 @@
 class Pokemon {
   constructor() {
     //Urls + UseUrls
-    this.urls = [];
     this.count = 0;
 
     //Obtener ID's
@@ -13,43 +12,26 @@ class Pokemon {
     this.showMoreBound = this.showMore.bind(this);
     this.btnNextPage.addEventListener("click", this.showMoreBound);
     this.filtroPokemon.addEventListener("keypress", this.filtro.bind(this));
-    this.loadUrls();
-  }
-
-  //Cargar Urls
-  async loadUrls() {
-    let url = "https://pokeapi.co/api/v2/pokemon?offset=0&limit=12";
-
-    for (let i = 1; i <= 109; i++) {
-      const pokemonList = await fetch(url)
-        .then((res) => res.json())
-        .then((poke) => poke);
-
-      this.urls.push(url);
-      url = pokemonList.next;
-    }
     this.showMore();
   }
 
   // Obtener pack pokemons y sus detalles
   showMore() {
-    this.getList(this.urls[this.count]);
-    this.count++;
+    this.getList();
+    this.count += 12;
   }
 
   // Obtener informacion pokemons
-  async getList(urls) {
-    const pokemonList = await fetch(urls)
-      .then((res) => res.json())
-      .then((poke) => poke);
-      
-    const url = pokemonList.results.map((e) => e.url);
+  async getList() {
+    const reponse = await fetch(
+      `https://pokeapi.co/api/v2/pokemon?offset=${this.count}&limit=12`
+    )
+    const pokemonList = await reponse.json()
+    const urls = pokemonList.results.map((e) => e.url);
 
-    url.forEach(async (e) => {
-      const pokemon = await fetch(e)
-        .then((res) => res.json())
-        .then((poke) => poke);
-
+    urls.forEach(async (e) => {
+      const response = await fetch(e)
+      const pokemon = await response.json()
       this.ArticleAndDialog(pokemon);
     });
   }
